@@ -1,11 +1,29 @@
-import BetterAuth from 'better-auth';
+import BetterAuth, { 
+  AuthConfig, 
+  RegisterOptions, 
+  LoginOptions, 
+  AuthResult 
+} from 'better-auth';
 import pool from '../config/database';
+import { testConnection } from '../config/database';
+
+// Define custom error for authentication
+class AuthenticationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'AuthenticationError';
+  }
+}
 
 class AuthenticationService {
-  private betterAuth: any;
+  private betterAuth: BetterAuth;
 
   constructor() {
-    this.betterAuth = new BetterAuth({
+    // Ensure database connection before initializing auth
+    this.verifyDatabaseConnection();
+
+    // Configuration for better-auth
+    const authConfig: AuthConfig = {
       database: {
         pool,
         usersTable: 'users',
@@ -13,48 +31,79 @@ class AuthenticationService {
       },
       security: {
         saltRounds: 10,
-        tokenExpiration: '1h'
+        tokenExpiration: '1h',
+        jwtSecret: process.env.JWT_SECRET || 'fallback_secret'
+      },
+      validation: {
+        email: {
+          required: true,
+          minLength: 5,
+          maxLength: 100
+        },
+        password: {
+          required: true,
+          minLength: 8,
+          maxLength: 72 // Recommended max for bcrypt
+        }
       }
-    });
+    };
+
+    this.betterAuth = new BetterAuth(authConfig);
   }
 
-  // User registration method
-  async registerUser(email: string, password: string, additionalData?: Record<string, any>) {
-    try {
-      const user = await this.betterAuth.register({
-        email,
-        password,
-        ...additionalData
-      });
-      return user;
-    } catch (error) {
-      console.error('Registration error:', error);
-      throw error;
+  // Verify database connection during initialization
+  private async verifyDatabaseConnection() {
+    const isConnected = await testConnection();
+    if (!isConnected) {
+      throw new AuthenticationError('Database connection failed');
     }
   }
 
-  // User login method
-  async loginUser(email: string, password: string) {
+  // User registration method with enhanced validation
+  async registerUser(
+    email: string, 
+    password: string, 
+    additionalData?: Record<string, any>
+  ): Promise<AuthResult> {
     try {
-      const loginResult = await this.betterAuth.login({
+      const registerOptions: RegisterOptions = {
+        email,
+        password,
+        ...additionalData
+      };
+
+      return await this.betterAuth.register(registerOptions);
+    } catch (error) {
+      console.error('Registration error:', error);
+      throw new AuthenticationError('User registration failed');
+    }
+  }
+
+  // User login method with error handling
+  async loginUser(
+    email: string, 
+    password: string
+  ): Promise<AuthResult> {
+    try {
+      const loginOptions: LoginOptions = {
         email,
         password
-      });
-      return loginResult;
+      };
+
+      return await this.betterAuth.login(loginOptions);
     } catch (error) {
       console.error('Login error:', error);
-      throw error;
+      throw new AuthenticationError('Invalid credentials');
     }
   }
 
   // JWT token verification
-  async verifyToken(token: string) {
+  async verifyToken(token: string): Promise<AuthResult> {
     try {
-      const verification = await this.betterAuth.verifyToken(token);
-      return verification;
+      return await this.betterAuth.verifyToken(token);
     } catch (error) {
       console.error('Token verification error:', error);
-      throw error;
+      throw new AuthenticationError('Invalid or expired token');
     }
   }
 }
