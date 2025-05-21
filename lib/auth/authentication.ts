@@ -10,8 +10,8 @@ class AuthenticationError extends Error {
   }
 }
 
-export class AuthenticationService {
-  public betterAuth: BetterAuth;
+class AuthService {
+  betterAuth: BetterAuth;
 
   constructor() {
     // Configuration for better-auth
@@ -101,4 +101,9 @@ export class AuthenticationService {
   }
 }
 
-export default new AuthenticationService();
+// Singleton instance
+const authService = new AuthService();
+export default authService;
+
+// Export class for testing and potential extension
+export { AuthService, AuthenticationError };
