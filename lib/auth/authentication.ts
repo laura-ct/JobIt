@@ -10,8 +10,8 @@ class AuthenticationError extends Error {
   }
 }
 
-class AuthenticationService {
-  private betterAuth: BetterAuth;
+export class AuthenticationService {
+  public betterAuth: BetterAuth;
 
   constructor() {
     // Configuration for better-auth
