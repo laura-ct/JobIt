@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "ionic:build": "npm run build",
-    "ionic:serve": "npm run start"
+    "ionic:serve": "npm run start",
+    "db:migrate": "node scripts/migrate.js",
+    "db:seed": "node scripts/seed.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.1.1",
@@ -30,7 +32,7 @@
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",
     "autoprefixer": "10.4.14",
-    "better-auth": "^1.2.8",
+    "better-auth": "^1.0.0",
     "chart.js": "^4.4.1",
     "class-variance-authority": "^0.6.1",
     "clsx": "^2.0.0",
@@ -44,7 +46,7 @@
     "moment": "^2.29.4",
     "next": "14.0.3",
     "next-themes": "^0.2.1",
-    "pg": "^8.16.0",
+    "pg": "^8.11.3",
     "postcss": "8.4.25",
     "react": "18.2.0",
     "react-apexcharts": "^1.4.1",
@@ -62,7 +64,7 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@types/pg": "^8.15.2",
+    "@types/pg": "^8.10.9",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^6.12.0",
     "@typescript-eslint/parser": "^6.12.0",
