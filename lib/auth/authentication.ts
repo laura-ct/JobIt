@@ -1,4 +1,4 @@
-import BetterAuth from 'better-auth';
+import * as BetterAuth from 'better-auth';
 import pool from '../config/database';
 import { testConnection } from '../config/database';
 
@@ -11,7 +11,7 @@ export class AuthenticationError extends Error {
 }
 
 export class AuthService {
-  public betterAuth: any;
+  betterAuth: typeof BetterAuth;
 
   constructor() {
     // Configuration for better-auth
@@ -45,7 +45,7 @@ export class AuthService {
       this.verifyDatabaseConnection();
     }
 
-    this.betterAuth = new BetterAuth(authConfig);
+    this.betterAuth = new BetterAuth.default(authConfig);
   }
 
   // Verify database connection during initialization
@@ -101,4 +101,5 @@ export class AuthService {
   }
 }
 
-export default new AuthService();
+const authService = new AuthService();
+export default authService;
