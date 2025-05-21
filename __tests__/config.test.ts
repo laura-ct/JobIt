@@ -8,12 +8,18 @@ describe('Configuration Setup', () => {
   });
 
   it('should have a query function', async () => {
-    const result = await query('SELECT NOW()');
-    expect(result).toBeDefined();
+    try {
+      const result = await query('SELECT NOW()');
+      expect(result).toBeDefined();
+    } catch (error) {
+      console.error('Database connection test failed:', error);
+      throw error;
+    }
   });
 
-  it('should have a valid better-auth configuration', () => {
+  it('should have a valid authentication configuration', () => {
     expect(authConfig).toBeDefined();
     expect(authConfig.secret).toBeTruthy();
+    expect(authConfig.tokenExpiration).toBe('7d');
   });
 });
