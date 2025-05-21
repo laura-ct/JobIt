@@ -3,15 +3,15 @@ import pool from '../config/database';
 import { testConnection } from '../config/database';
 
 // Define custom error for authentication
-class AuthenticationError extends Error {
+export class AuthenticationError extends Error {
   constructor(message: string) {
     super(message);
     this.name = 'AuthenticationError';
   }
 }
 
-class AuthService {
-  betterAuth: BetterAuth;
+export class AuthService {
+  public betterAuth: any;
 
   constructor() {
     // Configuration for better-auth
@@ -101,9 +101,4 @@ class AuthService {
   }
 }
 
-// Singleton instance
-const authService = new AuthService();
-export default authService;
-
-// Export class for testing and potential extension
-export { AuthService, AuthenticationError };
+export default new AuthService();
