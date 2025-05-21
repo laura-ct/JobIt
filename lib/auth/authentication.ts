@@ -1,9 +1,4 @@
-import BetterAuth, { 
-  AuthConfig, 
-  RegisterOptions, 
-  LoginOptions, 
-  AuthResult 
-} from 'better-auth';
+import BetterAuth from 'better-auth';
 import pool from '../config/database';
 import { testConnection } from '../config/database';
 
@@ -19,11 +14,8 @@ class AuthenticationService {
   private betterAuth: BetterAuth;
 
   constructor() {
-    // Ensure database connection before initializing auth
-    this.verifyDatabaseConnection();
-
     // Configuration for better-auth
-    const authConfig: AuthConfig = {
+    const authConfig = {
       database: {
         pool,
         usersTable: 'users',
@@ -43,10 +35,15 @@ class AuthenticationService {
         password: {
           required: true,
           minLength: 8,
-          maxLength: 72 // Recommended max for bcrypt
+          maxLength: 72
         }
       }
     };
+
+    // Only verify connection in non-test environments
+    if (process.env.NODE_ENV !== 'test') {
+      this.verifyDatabaseConnection();
+    }
 
     this.betterAuth = new BetterAuth(authConfig);
   }
@@ -59,38 +56,34 @@ class AuthenticationService {
     }
   }
 
-  // User registration method with enhanced validation
+  // User registration method
   async registerUser(
     email: string, 
     password: string, 
     additionalData?: Record<string, any>
-  ): Promise<AuthResult> {
+  ) {
     try {
-      const registerOptions: RegisterOptions = {
+      return await this.betterAuth.register({
         email,
         password,
         ...additionalData
-      };
-
-      return await this.betterAuth.register(registerOptions);
+      });
     } catch (error) {
       console.error('Registration error:', error);
       throw new AuthenticationError('User registration failed');
     }
   }
 
-  // User login method with error handling
+  // User login method
   async loginUser(
     email: string, 
     password: string
-  ): Promise<AuthResult> {
+  ) {
     try {
-      const loginOptions: LoginOptions = {
+      return await this.betterAuth.login({
         email,
         password
-      };
-
-      return await this.betterAuth.login(loginOptions);
+      });
     } catch (error) {
       console.error('Login error:', error);
       throw new AuthenticationError('Invalid credentials');
@@ -98,7 +91,7 @@ class AuthenticationService {
   }
 
   // JWT token verification
-  async verifyToken(token: string): Promise<AuthResult> {
+  async verifyToken(token: string) {
     try {
       return await this.betterAuth.verifyToken(token);
     } catch (error) {
