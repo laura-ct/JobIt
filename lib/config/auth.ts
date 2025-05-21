@@ -1,6 +1,6 @@
-import { BetterAuth } from 'better-auth';
+import * as BetterAuth from 'better-auth';
 
-const authConfig = new BetterAuth({
+const authConfig = {
   secret: process.env.AUTH_SECRET || 'your_fallback_secret', // IMPORTANT: Use a secure, environment-specific secret
   tokenExpiration: '7d',
   passwordResetTokenExpiration: '1h',
@@ -10,6 +10,6 @@ const authConfig = new BetterAuth({
     max: 5,
     resetTime: 60 * 60 * 1000, // 1 hour
   },
-});
+};
 
 export default authConfig;
